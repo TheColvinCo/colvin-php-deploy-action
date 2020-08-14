@@ -5,18 +5,23 @@ runs:
   steps:
     - name: "Get kubernetes credentials"
       run: gcloud container clusters get-credentials colvin --region $GCP_REGION
+      shell: bash
 
     - name: "Terraform Init"
       run: terraform init -backend-config="credentials=`echo $SA_GCP`" -backend-config="prefix=`echo $APP_NAME`" -input=false terraform/
+      shell: bash
 
     - name: "Terraform Workspace"
       run: terraform workspace select colvin terraform/ || terraform workspace new colvin terraform/
+      shell: bash
 
     - name: "Terraform Plan"
       run: terraform plan -var="client_secret=`echo $SA_GCP`" -var="app_name=`echo $APP_NAME`" terraform/
+      shell: bash
 
     - name: "Terraform Apply"
       run: terraform apply -var="client_secret=`echo $SA_GCP`" -var="app_name=`echo $APP_NAME`" -auto-approve terraform/
+      shell: bash
 
     - name: "Get latest tag and auto increment version"
       run: |
@@ -25,23 +30,30 @@ runs:
         if [[ $LAST =~ $REGEX ]]; then MAJOR="${BASH_REMATCH[1]}"; MINOR="${BASH_REMATCH[2]}"; fi
         if [ $MAJOR_VERSION != $MAJOR ]; then MAJOR=$MAJOR_VERSION; MINOR="1"; else MINOR=$(echo $MINOR + 1 | bc); fi
         echo "::set-env name=TAG_PHP::$MAJOR.$MINOR"
+      shell: bash
 
     - name: "Build docker images"
       run: |
         export PHP_IMAGE="$IMG_PHP:$TAG_PHP"
         docker-compose build php
+      shell: bash
 
     - name: "Configure docker-cli to push images in GCR"
       run: gcloud auth configure-docker
+      shell: bash
 
     - name: "Push docker images to GCR"
       run: docker push $IMG_PHP:$TAG_PHP
+      shell: bash
 
     - name: "Replace php version in helm values.yaml"
       run: sed -i "s/TAG_PHP/$TAG_PHP/g" ./api/helm/$APP_NAME/values.yaml
+      shell: bash
 
     - name: "Helm dependencies update"
       run: helm dependency update ./api/helm/$APP_NAME/
+      shell: bash
 
     - name: "Deploy Helm"
       run: helm upgrade $APP_NAME ./api/helm/$APP_NAME/ --install --wait --atomic --values=./api/helm/$APP_NAME/values.yaml
+      shell: bash
