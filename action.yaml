@@ -28,6 +28,7 @@ runs:
         LAST=`gcloud container images list-tags $IMG_PHP --sort-by="TAGS" --filter="tags:*" | grep -v TIMESTAMP | sort -rVk2 | head -n1 | awk '{print $2}'`
         REGEX="([0-9]+).([0-9]+)"
         if [[ $LAST =~ $REGEX ]]; then MAJOR="${BASH_REMATCH[1]}"; MINOR="${BASH_REMATCH[2]}"; fi
+        if [ -z $MAJOR ]; then MAJOR="1"; MINOR="0"; fi
         if [ $MAJOR_VERSION != $MAJOR ]; then MAJOR=$MAJOR_VERSION; MINOR="1"; else MINOR=$(echo $MINOR + 1 | bc); fi
         echo "::set-env name=TAG_PHP::$MAJOR.$MINOR"
       shell: bash
