@@ -1,5 +1,5 @@
-name: 'Colvin Deploy PHP API'
-description: 'Deploy Colvin PHP API projects to Google Cloud'
+name: 'Colvin Deploy PHP Projects'
+description: 'Deploy Colvin PHP projects to Google Cloud'
 runs:
   using: "composite"
   steps:
@@ -48,13 +48,13 @@ runs:
       shell: bash
 
     - name: "Replace php version in helm values.yaml"
-      run: sed -i "s/TAG_PHP/$TAG_PHP/g" ./api/helm/$APP_NAME/values.yaml
+      run: sed -i "s/TAG_PHP/$TAG_PHP/g" $SRC_PATH/helm/$APP_NAME/values.yaml
       shell: bash
 
     - name: "Helm dependencies update"
-      run: helm dependency update ./api/helm/$APP_NAME/
+      run: helm dependency update $SRC_PATH/helm/$APP_NAME/
       shell: bash
 
     - name: "Deploy Helm"
-      run: helm upgrade $APP_NAME ./api/helm/$APP_NAME/ --install --wait --atomic --values=./api/helm/$APP_NAME/values.yaml
+      run: helm upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic --values=$SRC_PATH/helm/$APP_NAME/values.yaml
       shell: bash
