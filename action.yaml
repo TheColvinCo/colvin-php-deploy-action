@@ -8,19 +8,19 @@ runs:
       shell: bash
 
     - name: "Terraform Init"
-      run: terraform init -backend-config="credentials=`echo $SA_GCP`" -backend-config="prefix=`echo $APP_NAME`" -input=false terraform/
+      run: if [ -d "./terraform" ]; then terraform init -backend-config="credentials=`echo $SA_GCP`" -backend-config="prefix=`echo $APP_NAME`" -input=false terraform/; fi
       shell: bash
 
     - name: "Terraform Workspace"
-      run: terraform workspace select colvin terraform/ || terraform workspace new colvin terraform/
+      run: if [ -d "./terraform" ]; then terraform workspace select colvin terraform/ || terraform workspace new colvin terraform/; fi
       shell: bash
 
     - name: "Terraform Plan"
-      run: terraform plan -var="client_secret=`echo $SA_GCP`" -var="app_name=`echo $APP_NAME`" terraform/
+      run: if [ -d "./terraform" ]; then terraform plan -var="client_secret=`echo $SA_GCP`" -var="app_name=`echo $APP_NAME`" terraform/; fi
       shell: bash
 
     - name: "Terraform Apply"
-      run: terraform apply -var="client_secret=`echo $SA_GCP`" -var="app_name=`echo $APP_NAME`" -auto-approve terraform/
+      run: if [ -d "./terraform" ]; then terraform apply -var="client_secret=`echo $SA_GCP`" -var="app_name=`echo $APP_NAME`" -auto-approve terraform/; fi
       shell: bash
 
     - name: "Get latest tag and auto increment version"
