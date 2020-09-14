@@ -36,7 +36,7 @@ runs:
     - name: "Build docker images"
       run: |
         export PHP_IMAGE="$IMG_PHP:$TAG_PHP"
-        docker-compose build php
+        docker-compose build $CONTAINER_NAME
       shell: bash
 
     - name: "Configure docker-cli to push images in GCR"
