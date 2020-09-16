@@ -51,10 +51,14 @@ runs:
       run: sed -i "s/TAG_PHP/$TAG_PHP/g" $SRC_PATH/helm/$APP_NAME/values.yaml
       shell: bash
 
+    - name: "Install Helm secrets plugin"
+      run: helm plugin install https://github.com/zendesk/helm-secrets
+      shell: bash
+
     - name: "Helm dependencies update"
       run: helm dependency update $SRC_PATH/helm/$APP_NAME/
       shell: bash
 
     - name: "Deploy Helm"
-      run: helm upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic --values=$SRC_PATH/helm/$APP_NAME/values.yaml
+      run: helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic --values=$SRC_PATH/helm/$APP_NAME/secrets.yaml --values=$SRC_PATH/helm/$APP_NAME/values.yaml
       shell: bash
