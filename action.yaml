@@ -21,7 +21,12 @@ runs:
       shell: bash
 
     - name: "Terraform Workspace"
-      run: if [ -d "./terraform" ]; then terraform workspace select colvin terraform/ || terraform workspace new colvin terraform/; fi
+      run: |
+        if [ $BRANCH == "master" ]; then
+            if [ -d "./terraform" ]; then terraform workspace select colvin terraform/ || terraform workspace new colvin terraform/; fi
+        else
+            if [ -d "./terraform" ]; then terraform workspace select stage1 terraform/ || terraform workspace new stage1 terraform/; fi
+        fi
       shell: bash
 
     - name: "Terraform Plan"
