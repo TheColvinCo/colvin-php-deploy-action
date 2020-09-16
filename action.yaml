@@ -12,7 +12,7 @@ runs:
         if [ $BRANCH == "master" ]; then
             gcloud container clusters get-credentials colvin --region $GCP_REGION
         else
-            gcloud container clusters get-credentials stage1
+            gcloud container clusters get-credentials stage1 --zone $GCP_ZONE
         fi
       shell: bash
 
