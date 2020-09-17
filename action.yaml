@@ -83,7 +83,7 @@ runs:
       run: |
         if [ $BRANCH == "master" ]; then
             helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic --values=$SRC_PATH/helm/$APP_NAME/values.yaml --values=$SRC_PATH/helm/$APP_NAME/secrets.yaml \
-                                                                                               --values=$SRC_PATH/helm/$APP_NAME/values-prod.yaml --values=$SRC_PATH/helm/$APP_NAME/secrets-prod.yaml
+                                                                                               --values=$SRC_PATH/helm/$APP_NAME/values.prod.yaml --values=$SRC_PATH/helm/$APP_NAME/secrets.prod.yaml
         else
             helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic --values=$SRC_PATH/helm/$APP_NAME/values.yaml --values=$SRC_PATH/helm/$APP_NAME/secrets.yaml
         fi
