@@ -72,7 +72,7 @@ runs:
       shell: bash
 
     - name: "Replace php version in helm values.yaml"
-      run: sed -i "s/TAG_PHP/$TAG_PHP/g" $SRC_PATH/helm/$APP_NAME/values.yaml && sed -i "s/TAG_PHP/$TAG_PHP/g" $SRC_PATH/helm/$APP_NAME/values.prod.yaml
+      run: sed -i "s/TAG_PHP/$TAG_PHP/g" $SRC_PATH/helm/$APP_NAME/values.yaml $SRC_PATH/helm/$APP_NAME/values.prod.yaml
       shell: bash
 
     - name: "Install Helm secrets plugin"
