@@ -56,7 +56,11 @@ runs:
     - name: "Build docker images"
       run: |
         export PHP_IMAGE="$IMG_PHP:$TAG_PHP"
-        docker-compose build $CONTAINER_NAME
+        if [ $BRANCH == "master" ]; then
+          docker-compose build --build-arg INSTALL_DATADOG=true $CONTAINER_NAME
+        else
+          docker-compose build $CONTAINER_NAME
+        fi
       shell: bash
 
     - name: "Configure docker-cli to push images in GCR"
@@ -68,7 +72,7 @@ runs:
       shell: bash
 
     - name: "Replace php version in helm values.yaml"
-      run: sed -i "s/TAG_PHP/$TAG_PHP/g" $SRC_PATH/helm/$APP_NAME/values.yaml
+      run: sed -i "s/TAG_PHP/$TAG_PHP/g" $SRC_PATH/helm/$APP_NAME/values.yaml $SRC_PATH/helm/$APP_NAME/values.prod.yaml
       shell: bash
 
     - name: "Install Helm secrets plugin"
