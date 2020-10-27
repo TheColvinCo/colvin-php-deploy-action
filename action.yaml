@@ -3,8 +3,17 @@ description: 'Deploy Colvin PHP projects to Google Cloud'
 runs:
   using: "composite"
   steps:
-    - name: "Set branch ENV"
-      run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+    - name: "Set ENV variables"
+      run: |
+        echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+        echo "STAGE=${GITHUB_REF##*/}" >> $GITHUB_ENV
+        #echo "STAGE=${{ github.event.inputs.environment }}" >> $GITHUB_ENV   # When stage1 branch is not used
+      shell: bash
+      
+    - name: "Validating environments"
+      run: |
+        REGEX="^stage[1-$LIMIT_STG]{1}$"
+        if [[ ! $STAGE =~ $REGEX ]] && [ "$BRANCH" != "master" ]; then echo "ERROR: not allowed environment"; exit 1; fi
       shell: bash
       
     - name: "Get kubernetes credentials"
@@ -12,7 +21,7 @@ runs:
         if [ $BRANCH == "master" ]; then
             gcloud container clusters get-credentials colvin --region $GCP_REGION
         else
-            gcloud container clusters get-credentials stage1 --zone $GCP_ZONE
+            gcloud container clusters get-credentials stage --zone $GCP_ZONE
         fi
       shell: bash
 
@@ -25,7 +34,7 @@ runs:
         if [ $BRANCH == "master" ]; then
             if [ -d "./terraform" ]; then terraform workspace select colvin terraform/ || terraform workspace new colvin terraform/; fi
         else
-            if [ -d "./terraform" ]; then terraform workspace select stage1 terraform/ || terraform workspace new stage1 terraform/; fi
+            if [ -d "./terraform" ]; then terraform workspace select $STAGE terraform/ || terraform workspace new $STAGE terraform/; fi
         fi
       shell: bash
 
@@ -40,11 +49,11 @@ runs:
     - name: "Get latest tag and auto increment version"
       run: |
         if [ $BRANCH == "master" ]; then
-            LAST=`gcloud container images list-tags $IMG_PHP --sort-by="TAGS" --filter="tags~^[0-9]" | grep -v TIMESTAMP | sort -rVk2 | head -n1 | awk '{print $2}'`
+            LAST=`gcloud container images list-tags $IMG_PHP --sort-by="TAGS" --filter="tags~^[0-9]" | sed '/TIMESTAMP/d' | sort -rVk2 | head -n1 | awk '{print $2}'`
             REGEX="([0-9]+).([0-9]+)"
         else
             MAJOR_VERSION="s"$MAJOR_VERSION
-            LAST=`gcloud container images list-tags $IMG_PHP --sort-by="TAGS" --filter="tags~^s[0-9]" | grep -v TIMESTAMP | sort -rVk2 | head -n1 | awk '{print $2}'`
+            LAST=`gcloud container images list-tags $IMG_PHP --sort-by="TAGS" --filter="tags~^s[0-9]" | sed '/TIMESTAMP/d' | sort -rVk2 | head -n1 | awk '{print $2}'`
             REGEX="(s[0-9]+).([0-9]+)"
         fi
         if [[ $LAST =~ $REGEX ]]; then MAJOR="${BASH_REMATCH[1]}"; MINOR="${BASH_REMATCH[2]}"; fi
