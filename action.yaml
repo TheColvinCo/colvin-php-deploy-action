@@ -97,7 +97,6 @@ runs:
         if [ $BRANCH == "master" ]; then
             helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f=$SRC_PATH/helm/$APP_NAME/values.yaml -f=$SRC_PATH/helm/$APP_NAME/values.prod.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.prod.yaml
         else
-            NUMSTG=`echo $STAGE | awk -F"stage" '{ print $2 }'`
-            helm secrets upgrade ${APP_NAME}${NUMSTG} $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f=$SRC_PATH/helm/$APP_NAME/values.yaml -f=$SRC_PATH/helm/$APP_NAME/values.$STAGE.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.$STAGE.yaml
+            helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f=$SRC_PATH/helm/$APP_NAME/values.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.yaml
         fi
       shell: bash
