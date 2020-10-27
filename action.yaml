@@ -6,12 +6,14 @@ runs:
     - name: "Set ENV variables"
       run: |
         echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+        echo "STAGE=${GITHUB_REF##*/}" >> $GITHUB_ENV
+        #echo "STAGE=${{ github.event.inputs.environment }}" >> $GITHUB_ENV   # When stage1 branch is not used
       shell: bash
       
     - name: "Validating environments"
       run: |
         REGEX="^stage[1-$LIMIT_STG]{1}$"
-        if [[ ! $BRANCH =~ $REGEX ]] && [ "$BRANCH" != "master" ]; then echo "ERROR: not allowed environment"; exit 1; fi
+        if [[ ! $STAGE =~ $REGEX ]] && [ "$BRANCH" != "master" ]; then echo "ERROR: not allowed environment"; exit 1; fi
       shell: bash
       
     - name: "Get kubernetes credentials"
@@ -32,7 +34,7 @@ runs:
         if [ $BRANCH == "master" ]; then
             if [ -d "./terraform" ]; then terraform workspace select colvin terraform/ || terraform workspace new colvin terraform/; fi
         else
-            if [ -d "./terraform" ]; then terraform workspace select $BRANCH terraform/ || terraform workspace new $BRANCH terraform/; fi
+            if [ -d "./terraform" ]; then terraform workspace select $STAGE terraform/ || terraform workspace new $STAGE terraform/; fi
         fi
       shell: bash
 
@@ -95,7 +97,7 @@ runs:
         if [ $BRANCH == "master" ]; then
             helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f=$SRC_PATH/helm/$APP_NAME/values.yaml -f=$SRC_PATH/helm/$APP_NAME/values.prod.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.prod.yaml
         else
-            NUMSTG=`echo $BRANCH | awk -F"stage" '{ print $2 }'`
-            helm secrets upgrade ${APP_NAME}${NUMSTG} $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f=$SRC_PATH/helm/$APP_NAME/values.yaml -f=$SRC_PATH/helm/$APP_NAME/values.$BRANCH.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.$BRANCH.yaml
+            NUMSTG=`echo $STAGE | awk -F"stage" '{ print $2 }'`
+            helm secrets upgrade ${APP_NAME}${NUMSTG} $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f=$SRC_PATH/helm/$APP_NAME/values.yaml -f=$SRC_PATH/helm/$APP_NAME/values.$STAGE.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.$STAGE.yaml
         fi
       shell: bash
