@@ -38,11 +38,11 @@ runs:
             if [ -d "./terraform" ]; then terraform workspace select $STAGE terraform/ || terraform workspace new $STAGE terraform/; fi
         fi
       shell: bash
-      
+    
     - name: "Decrypt terraform encrypted values"
-      run: if [ -f "./terraform/variables-encrypted.tf.enc" ]; then sops -d terraform/variables-encrypted.tf.enc > terraform/variables-encrypted.tf; fi
+      run: for i in `find terraform/ -name "*.tf.enc"`; do filename=`echo $i | cut -d'.' -f1,2`; sops -d $i > $filename; done
       shell: bash
-      
+
     - name: "Terraform Plan"
       run: if [ -d "./terraform" ]; then terraform plan -var="client_secret=`echo $SA_GCP`" -var="app_name=`echo $APP_NAME`" terraform/; fi
       shell: bash
