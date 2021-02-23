@@ -90,7 +90,7 @@ runs:
       shell: bash
 
     - name: "Install Helm secrets plugin"
-      run: helm plugin install https://github.com/zendesk/helm-secrets
+      run: helm plugin install https://github.com/jkroepke/helm-secrets
       shell: bash
 
     - name: "Helm dependencies update"
