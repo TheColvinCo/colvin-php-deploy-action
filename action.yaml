@@ -90,7 +90,7 @@ runs:
       shell: bash
 
     - name: "Install Helm secrets plugin"
-      run: helm plugin install https://github.com/jkroepke/helm-secrets
+      run: helm plugin install https://github.com/jkroepke/helm-secrets --version v3.5.0
       shell: bash
 
     - name: "Helm dependencies update"
@@ -100,8 +100,8 @@ runs:
     - name: "Deploy Helm"
       run: |
         if [ $BRANCH == "master" ]; then
-            helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f=$SRC_PATH/helm/$APP_NAME/values.yaml -f=$SRC_PATH/helm/$APP_NAME/values.prod.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.prod.yaml
+            helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f $SRC_PATH/helm/$APP_NAME/values.yaml -f $SRC_PATH/helm/$APP_NAME/values.prod.yaml -f $SRC_PATH/helm/$APP_NAME/secrets.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.prod.yaml
         else
-            helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f=$SRC_PATH/helm/$APP_NAME/values.yaml -f=$SRC_PATH/helm/$APP_NAME/secrets.yaml
+            helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f $SRC_PATH/helm/$APP_NAME/values.yaml -f $SRC_PATH/helm/$APP_NAME/secrets.yaml
         fi
       shell: bash
