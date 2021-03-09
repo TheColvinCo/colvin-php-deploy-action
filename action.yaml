@@ -5,9 +5,12 @@ runs:
   steps:
     - name: "Set ENV variables"
       run: |
-        echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
-        echo "STAGE=${GITHUB_REF##*/}" >> $GITHUB_ENV
-        #echo "STAGE=${{ github.event.inputs.environment }}" >> $GITHUB_ENV   # When stage1 branch is not used
+        if [ ${GITHUB_REF##*/} == "master" ]; then
+            echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+        else
+            echo "STAGE=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+            echo "BRANCH=volatile" >> $GITHUB_ENV
+        fi
       shell: bash
       
     - name: "Validating environments"
@@ -102,6 +105,7 @@ runs:
         if [ $BRANCH == "master" ]; then
             helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f $SRC_PATH/helm/$APP_NAME/values.yaml -f $SRC_PATH/helm/$APP_NAME/values.prod.yaml -f $SRC_PATH/helm/$APP_NAME/secrets.yaml -f $SRC_PATH/helm/$APP_NAME/secrets.prod.yaml
         else
-            helm secrets upgrade $APP_NAME $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f $SRC_PATH/helm/$APP_NAME/values.yaml -f $SRC_PATH/helm/$APP_NAME/secrets.yaml
+            NUMSTG=`echo $STAGE | awk -F"stage" '{ print $2 }'`
+            helm secrets upgrade ${APP_NAME}${NUMSTG} $SRC_PATH/helm/$APP_NAME/ --install --wait --atomic -f $SRC_PATH/helm/$APP_NAME/values.yaml -f $SRC_PATH/helm/$APP_NAME/values.$STAGE.yaml -f $SRC_PATH/helm/$APP_NAME/secrets.yaml -f $SRC_PATH/helm/$APP_NAME/secrets.$STAGE.yaml
         fi
       shell: bash
