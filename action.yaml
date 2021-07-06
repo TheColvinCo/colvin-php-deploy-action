@@ -73,14 +73,10 @@ runs:
     - name: "Build docker images"
       run: |
         export PHP_IMAGE="$IMG_PHP:$TAG_PHP"
-        if [ $BRANCH == "master" ]; then
-          docker-compose build --build-arg INSTALL_DATADOG=true --build-arg INSTALL_BLACKFIRE=true $CONTAINER_NAME
+        if [ $DD_STAGE == "true" ]; then
+          docker-compose build --build-arg INSTALL_DATADOG=true $CONTAINER_NAME
         else
-          if [ $DD_STAGE == "true" ]; then
-            docker-compose build --build-arg INSTALL_DATADOG=true $CONTAINER_NAME
-          else
-            docker-compose build $CONTAINER_NAME
-          fi
+          docker-compose build $CONTAINER_NAME
         fi
       shell: bash
 
